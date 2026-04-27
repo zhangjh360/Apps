@@ -102,50 +102,55 @@ namespace Apps.Web.Core
         {
             bool bResult = false;
             string actionName = string.IsNullOrEmpty(ActionName) ? action : ActionName;
-            if (account != null)
+            if (account == null)
             {
-                List<permModel> perm = null;
-                //测试当前controller是否已赋权限值，如果没有从
-                //如果存在区域,Seesion保存（区域+控制器）
-                if (!string.IsNullOrEmpty(Area))
-                {
-                    controller = Area + "/" + controller;
-                }
-                perm = (List<permModel>)HttpContext.Current.Session[filePath];
-                if (perm == null)
-                {
-                    SysUserBLL userBLL = new SysUserBLL()
-                    {
-                        m_Rep = new SysUserRepository(new DBContainer()),
-                        sysRightRep = new SysRightRepository(new DBContainer())
-                    };
-                    {
-                        perm = userBLL.GetPermission(account.Id, controller);//获取当前用户的权限列表
-                        HttpContext.Current.Session[filePath] = perm;//获取的劝降放入会话由Controller调用
-                    }
-                }
-                //当用户访问index时，只要权限>0就可以访问
-                if (actionName.ToLower() == "index")
-                {
-                    if (perm.Count > 0)
-                    {
-                        return true;
-                    }
-                }
-                //查询当前Action 是否有操作权限，大于0表示有，否则没有
-                int count = perm.Where(a => a.KeyCode.ToLower() == actionName.ToLower()).Count();
-                if (count > 0)
-                {
-                    bResult = true;
-                }
-                else
-                {
-                    bResult = false;
-                    LoginUserManage.RedirectUrl();
-                }
-
+                // 未登录，返回 false 让调用方处理（调用方会根据返回值做重定向或返回未授权）
+                return false;
             }
-            return true;
+
+            List<permModel> perm = null;
+            // 如果存在区域, 使用 区域/控制器 作为权限查询标准
+            if (!string.IsNullOrEmpty(Area))
+            {
+                controller = Area + "/" + controller;
+            }
+
+            // 使用基于用户的会话键，避免使用 filePath 导致不同用户共享同一权限集合
+            string sessionKey = $"Perms:{account.Id}:{controller}";
+            perm = (List<permModel>)HttpContext.Current.Session[sessionKey];
+            if (perm == null)
+            {
+                SysUserBLL userBLL = new SysUserBLL()
+                {
+                    m_Rep = new SysUserRepository(new DBContainer()),
+                    sysRightRep = new SysRightRepository(new DBContainer())
+                };
+                perm = userBLL.GetPermission(account.Id, controller);//获取当前用户的权限列表
+                HttpContext.Current.Session[sessionKey] = perm;//放入会话缓存
+            }
+
+            //当用户访问index时，只要权限>0就可以访问
+            if (actionName.ToLower() == "index")
+            {
+                if (perm != null && perm.Count > 0)
+                {
+                    return true;
+                }
+            }
+
+            //查询当前Action 是否有操作权限，大于0表示有，否则没有
+            int count = (perm ?? new List<permModel>()).Where(a => a.KeyCode.ToLower() == actionName.ToLower()).Count();
+            if (count > 0)
+            {
+                bResult = true;
+            }
+            else
+            {
+                bResult = false;
+                LoginUserManage.RedirectUrl();
+            }
+
+            return bResult;
         }
       
         public override void OnResultExecuted(ResultExecutedContext filterContext)

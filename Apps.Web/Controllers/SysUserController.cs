@@ -31,6 +31,17 @@ namespace Apps.Web.Controllers
             
             return View();
         }
+
+        private bool IsStrongPassword(string password)
+        {
+            if (string.IsNullOrEmpty(password) || password.Length < 8) return false;
+            int categories = 0;
+            if (System.Text.RegularExpressions.Regex.IsMatch(password, "[0-9]")) categories++;
+            if (System.Text.RegularExpressions.Regex.IsMatch(password, "[a-z]")) categories++;
+            if (System.Text.RegularExpressions.Regex.IsMatch(password, "[A-Z]")) categories++;
+            if (System.Text.RegularExpressions.Regex.IsMatch(password, "[^a-zA-Z0-9]")) categories++;
+            return categories >= 3;
+        }
         [SupportFilter(ActionName = "Index")]
         public JsonResult GetList(GridPager pager, string queryStr)
         {
@@ -173,9 +184,9 @@ namespace Apps.Web.Controllers
             ViewBag.Areas = new SelectList(areasBLL.GetList("0"), "Id", "Name");
             SysUserModel model = new SysUserModel()
             {
-                Password="123456",
+                // 不再使用弱默认密码，要求管理员在创建时设置初始密码
+                Password = string.Empty,
                 JoinDate = ResultHelper.NowTime
-                
             };
             return View(model);
         }
@@ -189,6 +200,11 @@ namespace Apps.Web.Controllers
 
                 model.Id = ResultHelper.NewId;
                 model.CreateTime = ResultHelper.NowTime;
+                // 密码强度校验
+                if (!IsStrongPassword(model.Password))
+                {
+                    return Json(JsonHandler.CreateMessage(0, "初始密码不符合安全策略：至少8位，包含数字、大小写字母和特殊字符中的至少3种"), JsonRequestBehavior.AllowGet);
+                }
                 model.Password = ValueConvert.MD5(model.Password);
                 model.CreatePerson = GetUserTrueName();
                 model.State = true;

@@ -14,6 +14,8 @@ using Apps.Models;
 using Apps.Web;
 using Apps.Web.Core;
 using Apps.Core;
+using System.Net;
+using System.Web.Security;
 
 namespace Apps.Web.Controllers
 {
@@ -91,15 +93,59 @@ namespace Apps.Web.Controllers
             return Json(JsonHandler.CreateMessage(1, ""), JsonRequestBehavior.AllowGet);
         }
         /// <summary>
-        /// 安全退出
+        /// 安全退出（Ajax/接口使用）
         /// </summary>
         [HttpPost]
-        public void LogOut()
+        public JsonResult LogOut()
         {
-            if (Session["Account"] != null)
-                Session["Account"] = null;
+            var account = Session["Account"] as AccountModel;
+            if (account != null)
+            {
+                try
+                {
+                    LoginUserManage.Remove(account.Id);
+                }
+                catch { }
+            }
+
             Session.Clear();
             Session.Abandon();
+            try
+            {
+                FormsAuthentication.SignOut();
+            }
+            catch { }
+
+            return Json(JsonHandler.CreateMessage(1, ""), JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// 注销（用于视图中的注销表单，_LoginPartial.cshtml 中调用 LogOff）
+        /// 清理 session、在线记录并登出表单认证 cookie，然后重定向到首页
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult LogOff()
+        {
+            var account = Session["Account"] as AccountModel;
+            if (account != null)
+            {
+                try
+                {
+                    LoginUserManage.Remove(account.Id);
+                }
+                catch { }
+            }
+
+            Session.Clear();
+            Session.Abandon();
+            try
+            {
+                FormsAuthentication.SignOut();
+            }
+            catch { }
+
+            return RedirectToAction("Index", "Home");
         }
 
         public void GetThemes(string userid)

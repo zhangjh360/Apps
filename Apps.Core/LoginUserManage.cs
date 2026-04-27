@@ -97,7 +97,8 @@ namespace Apps.Core
 
             if (account == null)
             {
-                RedirectUrl();
+                // 未登录
+                return false;
             }
 
             return true;
@@ -136,6 +137,7 @@ namespace Apps.Core
             //对比session中的令牌
             if (token.ToString() == encryptToken)
             {
+                // 可扩展：检查 token 是否包含过期时间或 nonce，在此处进行时效性检查
                 return true;
             }
 

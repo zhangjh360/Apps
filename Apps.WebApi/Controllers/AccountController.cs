@@ -25,7 +25,7 @@ namespace Apps.WebApi.Controllers
         /// <param name="userName">用户名</param>
         /// <param name="passsword">密码</param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpPost]
         public object Login(string userName, string password)
         {
             SysUser user = accountBLL.Login(userName, ValueConvert.MD5(password));
@@ -37,8 +37,9 @@ namespace Apps.WebApi.Controllers
             {
                 return Json(JsonHandler.CreateMessage(0, "账户被系统禁用"));
             }
+            // 不要在 token 的 UserData 中包含明文密码，改为仅包含用户名或用户ID
             FormsAuthenticationTicket token = new FormsAuthenticationTicket(0, userName, DateTime.Now,
-                            DateTime.Now.AddHours(1), true, string.Format("{0}&{1}", userName, password),
+                            DateTime.Now.AddHours(1), true, string.Format("{0}", userName),
                             FormsAuthentication.FormsCookiePath);
             //返回登录结果、用户信息、用户验证票据信息
             var Token = FormsAuthentication.Encrypt(token) ;

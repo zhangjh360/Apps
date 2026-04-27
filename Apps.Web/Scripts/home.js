@@ -223,7 +223,6 @@ function SignOut() {
     $.messager.confirm(index_lang_tip, index_YouWantToExitTheSystem, function (r) {
         if (r) {
             $.post("/Account/LogOut", function (data) {
-
             }, "json");
             window.location.href = '/Account/Index';
         }

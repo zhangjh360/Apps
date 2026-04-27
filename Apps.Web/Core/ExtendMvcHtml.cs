@@ -17,7 +17,8 @@ namespace Apps.Web.Core
         {
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("<input class=\"easyui-switchbutton\" style=\"width:43px;\" value=\"true\" ontext=\"\" id=\"{0}\" name=\"{1}\" offtext=\"\" {2}>",name, name, ( !check ? "" : "checked"));
+            sb.AppendFormat("<input class=\"easyui-switchbutton\" style=\"width:43px;\" value=\"true\" ontext=\"\" id=\"{0}\" name=\"{1}\" offtext=\"\" {2}>",
+                HttpUtility.HtmlEncode(name), HttpUtility.HtmlEncode(name), ( !check ? "" : "checked"));
            
             return new MvcHtmlString(sb.ToString());
 
@@ -26,7 +27,8 @@ namespace Apps.Web.Core
         {
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("<input class=\"easyui-switchbutton\" value=\"true\"  id=\"{0}\" name=\"{1}\" {2} offtext=\"{3}\" ontext=\"{4}\"  style=\"width:{5}px;\">", name, name, (!check ? "" : "checked"), ontext, offtext,width);
+            sb.AppendFormat("<input class=\"easyui-switchbutton\" value=\"true\"  id=\"{0}\" name=\"{1}\" {2} offtext=\"{3}\" ontext=\"{4}\"  style=\"width:{5}px;\">",
+                HttpUtility.HtmlEncode(name), HttpUtility.HtmlEncode(name), (!check ? "" : "checked"), HttpUtility.HtmlEncode(offtext), HttpUtility.HtmlEncode(ontext), HttpUtility.HtmlEncode(width));
 
             return new MvcHtmlString(sb.ToString());
 
@@ -52,9 +54,9 @@ namespace Apps.Web.Core
                 if (perm != null && perm.Where(a => a.KeyCode == keycode).Count() > 0)
                 {
                     StringBuilder sb = new StringBuilder();
-                    sb.AppendFormat("<a id=\"{0}\" style=\"float: left;\" class=\"l-btn l-btn-plain\">", id);
-                    sb.AppendFormat("<span class=\"l-btn-left\"><span class=\"l-btn-text {0}\" style=\"font-size:14px\">", icon);
-                    sb.AppendFormat("</span><span style=\"font-size:12px\">{0}</span></span></a>", text);
+                    sb.AppendFormat("<a id=\"{0}\" style=\"float: left;\" class=\"l-btn l-btn-plain\">", HttpUtility.HtmlEncode(id));
+                    sb.AppendFormat("<span class=\"l-btn-left\"><span class=\"l-btn-text {0}\" style=\"font-size:14px\">", HttpUtility.HtmlEncode(icon));
+                    sb.AppendFormat("</span><span style=\"font-size:12px\">{0}</span></span></a>", HttpUtility.HtmlEncode(text));
                     if (hr)
                     {
                         sb.Append("<div class=\"datagrid-btn-separator\"></div>");
@@ -77,9 +79,9 @@ namespace Apps.Web.Core
             if (perm != null && perm.Where(a => a.KeyCode == keycode).Count() > 0)
             {
                 StringBuilder sb = new StringBuilder();
-                sb.AppendFormat("<a class=\"searchbtn\" id=\"{0}\" style=\"float: left;\" class=\"l-btn l-btn-plain\">", id);
-                sb.AppendFormat("<span class=\"l-btn-left\"><span class=\"l-btn-text {0}\" style=\"font-size:14px\">", icon);
-                sb.AppendFormat("</span><span style=\"font-size:12px\">{0}</span></span></a>", text);
+                    sb.AppendFormat("<a class=\"searchbtn\" id=\"{0}\" style=\"float: left;\" class=\"l-btn l-btn-plain\">", HttpUtility.HtmlEncode(id));
+                sb.AppendFormat("<span class=\"l-btn-left\"><span class=\"l-btn-text {0}\" style=\"font-size:14px\">", HttpUtility.HtmlEncode(icon));
+                sb.AppendFormat("</span><span style=\"font-size:12px\">{0}</span></span></a>", HttpUtility.HtmlEncode(text));
                 if (hr)
                 {
                     sb.Append("<div class=\"datagrid-btn-separator\"></div>");
@@ -107,9 +109,9 @@ namespace Apps.Web.Core
             if (perm.Where(a => a.KeyCode == keycode).Count() > 0)
             {
                 StringBuilder sb = new StringBuilder();
-                sb.AppendFormat("<a onclick=\"{0}\" style=\"float: left;\" class=\"l-btn l-btn-plain\">", fun);
-                sb.AppendFormat("<span class=\"l-btn-left\"><span class=\"l-btn-text {0}\" style=\"padding-left: 20px;\">", icon);
-                sb.AppendFormat("{0}</span></span></a>", text);
+                sb.AppendFormat("<a onclick=\"{0}\" style=\"float: left;\" class=\"l-btn l-btn-plain\">", HttpUtility.HtmlEncode(fun));
+                sb.AppendFormat("<span class=\"l-btn-left\"><span class=\"l-btn-text {0}\" style=\"padding-left: 20px;\">", HttpUtility.HtmlEncode(icon));
+                sb.AppendFormat("{0}</span></span></a>", HttpUtility.HtmlEncode(text));
                 if (hr)
                 {
                     sb.Append("<div class=\"datagrid-btn-separator\"></div>");
@@ -135,9 +137,9 @@ namespace Apps.Web.Core
         {
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("<a onclick=\"{0}\" style=\"float: left;\" class=\"l-btn l-btn-plain\">", fun);
-            sb.AppendFormat("<span class=\"l-btn-left\"><span class=\"l-btn-text {0}\" style=\"padding-left: 20px;\">", icon);
-            sb.AppendFormat("{0}</span></span></a>", text);
+            sb.AppendFormat("<a onclick=\"{0}\" style=\"float: left;\" class=\"l-btn l-btn-plain\">", HttpUtility.HtmlEncode(fun));
+            sb.AppendFormat("<span class=\"l-btn-left\"><span class=\"l-btn-text {0}\" style=\"padding-left: 20px;\">", HttpUtility.HtmlEncode(icon));
+            sb.AppendFormat("{0}</span></span></a>", HttpUtility.HtmlEncode(text));
             if (hr)
             {
                 sb.Append("<div class=\"datagrid-btn-separator\"></div>");

@@ -46,8 +46,16 @@ namespace Apps.Web.Controllers
                     var allowedExtensions = new HashSet<string> { ".jpg", ".jpeg", ".png", ".gif", ".pdf" }; // 通过白名单限制上传
                     if (string.IsNullOrEmpty(fileExtension) || !allowedExtensions.Contains(fileExtension))
                     {
-                        // return Json(new { Success = false, Message = "不允许的文件类型！" }, JsonRequestBehavior.AllowGet);
+                        return Json(new { Success = false, Message = "不允许的文件类型！" }, JsonRequestBehavior.AllowGet);
                     }
+
+                    //  防止双重扩展名攻击
+                    if (fileName.Count(c => c == '.') > 1)
+                    {
+                        return Json(new { Success = false, Message = "文件名不能包含多个点号！" },
+                            JsonRequestBehavior.AllowGet);
+                    }
+
                     // 文件上传后的保存路径
                     string filePath = Server.MapPath("~/Uploads/");
                     if (!Directory.Exists(filePath))

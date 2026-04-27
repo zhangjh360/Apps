@@ -19,10 +19,18 @@ namespace Apps.WebApi.Core
         //重写基类的验证方式，加入我们自定义的Ticket验证
         public override void OnAuthorization(System.Web.Http.Controllers.HttpActionContext actionContext)
         {
-            //url获取token
+            // 首先尝试从 Authorization header 获取 token（优先），回退到 QueryString（兼容旧客户端）
             var content = actionContext.Request.Properties[ConfigPara.MS_HttpContext] as HttpContextBase;
+            string token = null;
+            if (actionContext.Request.Headers.Authorization != null && !string.IsNullOrEmpty(actionContext.Request.Headers.Authorization.Parameter))
+            {
+                token = actionContext.Request.Headers.Authorization.Parameter;
+            }
+            else
+            {
+                token = content.Request.QueryString[ConfigPara.Token];
+            }
 
-            var token = content.Request.QueryString[ConfigPara.Token];
             if (!string.IsNullOrEmpty(token))
             {
                 //解密用户ticket,并校验用户名密码是否匹配
@@ -38,7 +46,19 @@ namespace Apps.WebApi.Core
                 string filePath = HttpContext.Current.Request.FilePath;
                 if (LoginUserManage.ValidateTicket(token) && ValiddatePermission(token, controller, action, filePath))
                 {
-                    //已经登录，有权限，且没有单机登录限制
+                    // 验证成功后，应将当前用户身份注入 HttpContext，以便后续授权逻辑依赖 HttpContext.User
+                    try
+                    {
+                        var userName = LoginUserManage.DecryptToken(token.Trim());
+                        var identity = new System.Security.Principal.GenericIdentity(userName);
+                        var principal = new System.Security.Principal.GenericPrincipal(identity, roles: null);
+                        HttpContext.Current.User = principal;
+                        System.Threading.Thread.CurrentPrincipal = principal;
+                    }
+                    catch
+                    {
+                        // 忽略注入失败，仍然认为已授权，由于 ValidateTicket 已通过
+                    }
                     base.IsAuthorized(actionContext);
                 }
                 else
