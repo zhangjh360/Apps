@@ -315,6 +315,7 @@
     <Compile Include="Core\Signalr\OnlineUsersManage.cs" />
     <Compile Include="Core\Signalr\StartupSignalr.cs" />
     <Compile Include="Core\Signalr\WebIM.cs" />
+    <Compile Include="Core\LoginRequiredFilterAttribute.cs" />
     <Compile Include="Core\SupportFilter.cs" />
     <Compile Include="Core\upload_ajax.ashx.cs">
       <DependentUpon>upload_ajax.ashx</DependentUpon>
