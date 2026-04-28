@@ -39,14 +39,29 @@ namespace Apps.Web.Core
                 return;
             }
 
-            // 未登录且不在白名单中时，重定向到登录页，并携带原始地址用于登录后回跳。
+            // 未登录且不在白名单中时，重定向到登录页。
+            // 根路径（/）不需要携带 url，避免出现 /Account/Index?url=%2F
+            var rawUrl = filterContext.HttpContext.Request.RawUrl;
+            if (string.IsNullOrEmpty(rawUrl) || rawUrl == "/")
+            {
+                filterContext.Result = new RedirectToRouteResult(
+                    new System.Web.Routing.RouteValueDictionary(
+                        new
+                        {
+                            controller = "Account",
+                            action = "Index"
+                        }));
+                return;
+            }
+
+            // 其它路径携带原始地址用于登录后回跳。
             filterContext.Result = new RedirectToRouteResult(
                 new System.Web.Routing.RouteValueDictionary(
                     new
                     {
                         controller = "Account",
                         action = "Index",
-                        url = filterContext.HttpContext.Request.RawUrl
+                        url = rawUrl
                     }));
         }
 
